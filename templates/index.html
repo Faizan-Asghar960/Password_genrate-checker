@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{{ url_for('static', filename='background.jpg') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px; /* Base font size increase karein */
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 90px;
+            border-radius: 40px;
+            max-width: 600px;
+            width: 90%;
+            margin: auto;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.em; /* Heading ka size increase karein */
+        }
+        label {
+            font-size: 1.2em; /* Labels ka size increase karein */
+        }
+        .slider {
+            width: 100%;
+        }
+        .feedback {
+            margin-top: 20px;
+        }
+        .feedback h2 {
+            font-size: 1.8em; /* Feedback heading ka size increase karein */
+        }
+        .feedback p {
+            font-size: 1.5em; /* Feedback text ka size increase karein */
+        }
+        .strong {
+            color: green;
+        }
+        .weak {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MFK Password Generator</h1>
+        <label for="length">Password Length: <span id="length-value">10</span></label>
+        <input type="range" id="length" class="slider" min="1" max="20" value="10">
+        
+        <label><input type="checkbox" id="use_upper"> Uppercase Letters</label><br>
+        <label><input type="checkbox" id="use_lower" checked> Lowercase Letters</label><br>
+        <label><input type="checkbox" id="use_digits"> Numbers</label><br>
+        <label><input type="checkbox" id="use_special"> Special Characters</label><br>
+
+       <h1> <button id="generate-btn">Generate Password</button></h1>
+
+        <div class="feedback">
+            <h2>MFK Generated Password:</h2>
+            <p id="password"></p>
+            <p>Strength: <span id="strength"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const lengthSlider = document.getElementById("length");
+        const lengthValue = document.getElementById("length-value");
+        const generateBtn = document.getElementById("generate-btn");
+        const passwordDisplay = document.getElementById("password");
+        const strengthDisplay = document.getElementById("strength");
+
+        lengthSlider.addEventListener("input", () => {
+            lengthValue.textContent = lengthSlider.value;
+        });
+
+        generateBtn.addEventListener("click", async () => {
+            const length = lengthSlider.value;
+            const useUpper = document.getElementById("use_upper").checked;
+            const useLower = document.getElementById("use_lower").checked;
+            const useDigits = document.getElementById("use_digits").checked;
+            const useSpecial = document.getElementById("use_special").checked;
+
+            const response = await fetch("/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    length,
+                    use_upper: useUpper,
+                    use_lower: useLower,
+                    use_digits: useDigits,
+                    use_special: useSpecial,
+                }),
+            });
+
+            const data = await response.json();
+            passwordDisplay.textContent = data.password;
+            strengthDisplay.textContent = data.strength;
+            strengthDisplay.className = data.strength.toLowerCase().replace(" ", "-");
+        });
+    </script>
+</body>
+</html>
