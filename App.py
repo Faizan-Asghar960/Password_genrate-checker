@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+import streamlit as st
+from streamlit.components.v1 import html
 import random
 import string
-
-app = Flask(__name__)
 
 # Function to generate password
 def generate_password(length, use_upper, use_lower, use_digits, use_special):
@@ -45,23 +44,52 @@ def check_password_strength(password):
     else:
         return "Weak"
 
-# Flask routes
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Streamlit App
+st.title("MFK Password Generator")
 
-@app.route("/generate", methods=["POST"])
-def generate():
-    data = request.json
-    length = int(data["length"])
-    use_upper = data["use_upper"]
-    use_lower = data["use_lower"]
-    use_digits = data["use_digits"]
-    use_special = data["use_special"]
+# Password length slider
+length = st.slider("Password Length", min_value=2, max_value=20, value=10)
 
+# Checkboxes for options
+use_upper = st.checkbox("Uppercase Letters")
+use_lower = st.checkbox("Lowercase Letters", value=True)
+use_digits = st.checkbox("Numbers")
+use_special = st.checkbox("Special Characters")
+
+# Generate button
+if st.button("Generate Password"):
     password = generate_password(length, use_upper, use_lower, use_digits, use_special)
     strength = check_password_strength(password)
-    return jsonify({"password": password, "strength": strength})
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    # Custom HTML, CSS, aur JavaScript
+    custom_code = f"""
+    <style>
+    .custom-container {{
+        background: rgba(0, 0, 0, 0.7);
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        margin-top: 20px;
+    }}
+    .custom-button {{
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }}
+    .custom-button:hover {{
+        background-color: #45a049;
+    }}
+    </style>
+
+    <div class="custom-container">
+        <h2>MFK Generated Password:</h2>
+        <p>{password}</p>
+        <p>Strength: <span>{strength}</span></p>
+    </div>
+    """
+
+    # Streamlit mein custom code display karein
+    html(custom_code, height=200)
